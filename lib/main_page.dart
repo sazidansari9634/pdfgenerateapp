@@ -26,6 +26,18 @@ class _MainPageState extends State<MainPage> {
     Navigator.push(context, MaterialPageRoute(builder: (context)=> const SelectedImages()));
   }
  }
+
+ void captureCameraImages() async {
+  final ImagePicker picker = ImagePicker();
+  final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+  if(image != null){
+    imagesList.clearImageList();
+    imagesList.imagePaths.add(image);
+  }
+   if(!mounted) return;
+   Navigator.push(context, MaterialPageRoute(builder: (context)=> const SelectedImages()));
+ }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,8 +63,7 @@ class _MainPageState extends State<MainPage> {
               color: Colors.teal,
               textColor: Colors.white,
               padding:const EdgeInsets.symmetric(horizontal: 30,vertical: 20),
-              onPressed: (){
-            },
+              onPressed: captureCameraImages,
             child: const Text("Capture Image"),
             )
           ],
