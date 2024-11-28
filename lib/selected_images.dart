@@ -1,8 +1,13 @@
+
 import 'dart:io';
 
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:media_scanner/media_scanner.dart';
 import 'package:pdfgenerateapp/images_list.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:image/image.dart' as img;
 
 class SelectedImages extends StatefulWidget {
   const SelectedImages({super.key});
@@ -15,6 +20,37 @@ class _SelectedImagesState extends State<SelectedImages> {
   ImagesList imagesList = ImagesList();
   late double progressValue = 0;
   late bool isExporting = false;
+  late int convertedImage = 0;
+
+  void convertImage() async {
+     setState(() {
+       isExporting = true;
+     });
+
+     final pathToSave = await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DOCUMENTS);
+
+     final pdf = pw.Document();
+
+     for(final imagePath in imagesList.imagePaths){
+       final imageBytes = await File(imagePath.path).readAsBytes();
+       final image = img.decodeImage(imageBytes);
+
+       if(image != null){
+        final pdfImage = pw.MemoryImage(imageBytes);
+        pdf.addPage(pw.Page(build: (pw.Context context){
+          return pw.Center(child: pw.Image(pdfImage));
+        }));
+       }
+       setState(() {
+         convertedImage++;
+         progressValue = convertedImage / imagesList.imagePaths.length;
+       });
+     }
+     final outputFile = File('$pathToSave/NewPdf.pdf');
+     await outputFile.writeAsBytes(await pdf.save());
+
+     MediaScanner.loadMedia(path: outputFile.path);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +65,7 @@ class _SelectedImagesState extends State<SelectedImages> {
         color: Colors.teal,
         textColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 20),
-        onPressed: (){},
+        onPressed: convertImage,
         child: const Text("Convert",style: TextStyle(fontSize: 18),),
         ),
         body:  SingleChildScrollView(
