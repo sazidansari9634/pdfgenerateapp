@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:pdfgenerateapp/images_list.dart';
+import 'package:pdfgenerateapp/selected_images.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -7,8 +10,22 @@ class MainPage extends StatefulWidget {
   @override
   State<MainPage> createState() => _MainPageState();
 }
+ 
 
 class _MainPageState extends State<MainPage> {
+  ImagesList imagesList = ImagesList();
+
+ void pickGalleryImage() async {
+  final ImagePicker picker = ImagePicker();
+  final List<XFile> images = await picker.pickMultiImage();
+
+  if(images.isNotEmpty){
+    imagesList.clearImageList();
+    imagesList.imagePaths.addAll(images);
+    if(!mounted) return;
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> const SelectedImages()));
+  }
+ }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,8 +43,7 @@ class _MainPageState extends State<MainPage> {
               color: Colors.teal,
               textColor: Colors.white,
               padding:const EdgeInsets.symmetric(horizontal: 30,vertical: 20),
-              onPressed: (){
-            },
+              onPressed: pickGalleryImage,
             child: const Text("Gallery Image"),
             ),
             const Gap(10),
