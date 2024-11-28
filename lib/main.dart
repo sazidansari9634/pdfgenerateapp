@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pdfgenerateapp/main_page.dart';
-import 'package:pdfgenerateapp/selected_images.dart';
 
 void main() {
   runApp(const MyApp());
